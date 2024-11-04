@@ -14,11 +14,11 @@ const reader = pip.connect((frame) => {
   console.log(frame.commandByte);
 });
 
-const { upgradeWebSocket } = createNodeWebSocket({ app });
+const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
 
-app.get(
+const wsRoute = app.get(
   "/ws",
-  upgradeWebSocket((c) => {
+  upgradeWebSocket(() => {
     return {
       onOpen(_event, wsContext) {
         ws = wsContext;
@@ -26,6 +26,8 @@ app.get(
     };
   })
 );
+
+export type ScannerApp = typeof wsRoute;
 
 if (process.env.NODE_ENV === "development") {
   app.post(
@@ -44,6 +46,8 @@ if (process.env.NODE_ENV === "development") {
           payload,
         })
       );
+
+      return c.json({ status: "ok" });
     }
   );
 }
@@ -51,7 +55,9 @@ if (process.env.NODE_ENV === "development") {
 const port = 3000;
 console.log(`Server is running on http://localhost:${port}`);
 
-serve({
+const server = serve({
   fetch: app.fetch,
   port,
 });
+
+injectWebSocket(server);

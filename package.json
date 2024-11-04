@@ -2,6 +2,9 @@
   "name": "attendance-kiosk",
   "private": true,
   "version": "1.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "pnpm --parallel dev"
   }

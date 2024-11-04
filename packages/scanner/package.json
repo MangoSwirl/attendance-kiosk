@@ -1,0 +1,21 @@
+{
+  "name": "@attendance-kiosk/scanner",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.4",
+    "@hono/node-ws": "^1.0.4",
+    "@hono/zod-validator": "^0.4.1",
+    "crc": "^4.3.2",
+    "hono": "^4.6.8",
+    "node-hid": "^3.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1"
+  }
+}

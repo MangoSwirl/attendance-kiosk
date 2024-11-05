@@ -12,7 +12,8 @@
     "@hono/zod-validator": "^0.4.1",
     "crc": "^4.3.2",
     "hono": "^4.6.8",
-    "node-hid": "^3.1.2"
+    "node-hid": "^3.1.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",

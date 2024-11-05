@@ -10,9 +10,13 @@ const app = new Hono();
 
 let ws: WSContext | undefined;
 
-const reader = pip.connect((frame) => {
-  console.log(frame.commandByte);
-});
+try {
+  const reader = pip.connect((frame) => {
+    console.log(frame.commandByte);
+  });
+} catch (error) {
+  console.log(error);
+}
 
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
 

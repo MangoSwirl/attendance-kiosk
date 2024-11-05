@@ -1,13 +1,14 @@
 import { scannerClient } from "@/lib/scannerClient";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { UserContext } from "../lib/UserContext";
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
 function RootComponent() {
-  const [, setCardPayload] = useState<string | null>(null);
+  const [cardPayload, setCardPayload] = useState<string | null>(null);
 
   useEffect(() => {
     const socket = scannerClient.ws.$ws();
@@ -24,5 +25,14 @@ function RootComponent() {
     };
   }, []);
 
-  return <Outlet />;
+  return (
+    <UserContext.Provider
+      value={{
+        cardPayload,
+        user: null,
+      }}
+    >
+      <Outlet />
+    </UserContext.Provider>
+  );
 }

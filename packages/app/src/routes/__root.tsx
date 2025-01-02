@@ -2,6 +2,7 @@ import { scannerClient } from "@/lib/scannerClient";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { UserContext } from "../lib/UserContext";
+import useReaderConnected from "@/lib/readerConnected";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -9,6 +10,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const [cardPayload, setCardPayload] = useState<string | null>(null);
+  const setReaderConnected = useReaderConnected((state) => state.setReaderConnected);
 
   useEffect(() => {
     const socket = scannerClient.ws.$ws();
@@ -18,12 +20,16 @@ function RootComponent() {
       if (message.event === "scan") {
         setCardPayload(message.payload);
       }
+
+      if (message.event === "connectivity") {
+        setReaderConnected(message.connected);
+      }
     });
 
     return () => {
       socket.close();
     };
-  }, []);
+  }, [setReaderConnected]);
 
   return (
     <UserContext.Provider

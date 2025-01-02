@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import useReaderConnected from "@/lib/readerConnected";
 import { useUser } from "@/lib/UserContext";
 import { cn } from "@/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { LoaderCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
@@ -22,8 +24,22 @@ function WelcomeText() {
   );
 }
 
+function ReaderDisconnected() {
+  return (
+    <div className="bg-background h-screen w-screen flex justify-center items-center gap-2">
+      <LoaderCircle className="animate-spin" />
+      <p>Connecting to reader...</p>
+    </div>
+  );
+}
+
 function HomeComponent() {
   const { cardPayload, user } = useUser();
+  const isReaderConnected = useReaderConnected((state) => state.readerConnected);
+
+  if (!isReaderConnected) {
+    return <ReaderDisconnected />;
+  }
 
   return (
     <div className="bg-background w-screen h-screen flex justify-center items-center">

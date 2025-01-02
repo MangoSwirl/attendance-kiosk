@@ -12,12 +12,20 @@ let ws: WSContext | undefined;
 
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
 
+let isReaderConnected = false;
+
 const wsRoute = app.get(
   "/ws",
   upgradeWebSocket(() => {
     return {
       onOpen(_event, wsContext) {
         ws = wsContext;
+        ws?.send(
+          JSON.stringify({
+            event: "connectivity",
+            connected: isReaderConnected,
+          })
+        );
       },
     };
   })
@@ -26,14 +34,32 @@ const wsRoute = app.get(
 export type ScannerApp = typeof wsRoute;
 
 try {
-  pip.connect((scanPayload) => {
-    ws?.send(
-      JSON.stringify({
-        event: "scan",
-        payload: scanPayload,
-      })
-    );
-  });
+  pip.connect(
+    (scanPayload) => {
+      console.log(scanPayload);
+
+      ws?.send(
+        JSON.stringify({
+          event: "scan",
+          payload: scanPayload,
+        })
+      );
+    },
+    (newConnectivity) => {
+      console.log("Is connected: " + newConnectivity);
+
+      if (newConnectivity !== isReaderConnected) {
+        isReaderConnected = newConnectivity;
+
+        ws?.send(
+          JSON.stringify({
+            event: "connectivity",
+            connected: isReaderConnected,
+          })
+        );
+      }
+    }
+  );
 } catch (error) {
   console.log(error);
 }

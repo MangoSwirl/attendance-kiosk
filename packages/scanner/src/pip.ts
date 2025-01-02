@@ -4,7 +4,10 @@ import statusCodes from "./statuscodes.js";
 import arraysAreEqual from "./util/arraysAreEqual.js";
 import { parseTLV } from "./util/tlv.js";
 
-export function connect(onScanHandler: (payload: string) => void) {
+export function connect(
+  onScanHandler: (payload: string) => void,
+  connectivityUpdateHandler: (isConnected: boolean) => void
+) {
   const devices = HID.devices();
 
   const pipInfo = devices.find(
@@ -13,6 +16,8 @@ export function connect(onScanHandler: (payload: string) => void) {
 
   if (!pipInfo) {
     console.log("PiP not found.");
+    connectivityUpdateHandler(false);
+    setTimeout(() => connect(onScanHandler, connectivityUpdateHandler), 1000);
     return;
   }
 
@@ -21,6 +26,7 @@ export function connect(onScanHandler: (payload: string) => void) {
   let incomingReports: number[][] = [];
 
   reader.on("data", (report: Buffer) => {
+    console.log("Data received");
     incomingReports.push(report.toJSON().data);
 
     if ([1, 4].includes(incomingReports[incomingReports.length - 1][0])) {
@@ -29,15 +35,22 @@ export function connect(onScanHandler: (payload: string) => void) {
     }
   });
 
-  reader.on("error", (error) => {
+  reader.on("error", (error: Error) => {
     console.log("New error:");
-    console.log(error);
+    console.log(error.message);
+
+    if (error.message === "could not read from HID device") {
+      console.log("Trying to reconnect");
+      connectivityUpdateHandler(false);
+      setTimeout(() => connect(onScanHandler, connectivityUpdateHandler), 1000);
+    }
   });
 
   sendCommand(reader, 0x01, 0x12, [0x03]); // Auto-poll cards and send them through HID
   sendCommand(reader, 0x01, 0x05, [0x10, 0x05]); // Disable buzzer
 
   console.log("Connected to reader");
+  connectivityUpdateHandler(true);
 
   return reader;
 }

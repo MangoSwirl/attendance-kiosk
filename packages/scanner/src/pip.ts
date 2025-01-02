@@ -4,8 +4,6 @@ import statusCodes from "./statuscodes.js";
 import arraysAreEqual from "./util/arraysAreEqual.js";
 import { parseTLV } from "./util/tlv.js";
 
-let reader: HID.HID;
-
 export function connect(onScanHandler: (payload: string) => void) {
   const devices = HID.devices();
 

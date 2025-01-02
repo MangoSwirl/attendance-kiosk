@@ -1,17 +1,16 @@
 import HID from "node-hid";
 import { crc16ccitt } from "crc";
 import statusCodes from "./statuscodes.js";
+import arraysAreEqual from "./util/arraysAreEqual.js";
+import { parseTLV } from "./util/tlv.js";
 
 let reader: HID.HID;
 
-export function connect(onFrameHandler: (frame: ResponseFrame) => void) {
+export function connect(onScanHandler: (payload: string) => void) {
   const devices = HID.devices();
 
   const pipInfo = devices.find(
-    (d) =>
-      d.vendorId === 0x0acd &&
-      d.productId === 17984 &&
-      d.path?.includes("HID-Reader")
+    (d) => d.vendorId === 0x0acd && d.productId === 17984 && d.interface === 0
   );
 
   if (!pipInfo) {
@@ -27,7 +26,7 @@ export function connect(onFrameHandler: (frame: ResponseFrame) => void) {
     incomingReports.push(report.toJSON().data);
 
     if ([1, 4].includes(incomingReports[incomingReports.length - 1][0])) {
-      onFrame(idtechHIDDecode(incomingReports), onFrameHandler);
+      onFrame(reader, idtechHIDDecode(incomingReports), onScanHandler);
       incomingReports = [];
     }
   });
@@ -40,35 +39,61 @@ export function connect(onFrameHandler: (frame: ResponseFrame) => void) {
   sendCommand(reader, 0x01, 0x12, [0x03]); // Auto-poll cards and send them through HID
   sendCommand(reader, 0x01, 0x05, [0x10, 0x05]); // Disable buzzer
 
-  console.log("Connected");
+  console.log("Connected to reader");
 
   return reader;
 }
 
 function onFrame(
+  reader: HID.HID,
   frame: number[],
-  onFrameHandler: (frame: ResponseFrame) => void
+  onScanHandler: (payload: string) => void
 ) {
   if (!crcVerify(frame)) {
-    console.log("Ignored invalid incoming frame from reader.");
+    // Apple Wallet for some reason doesn't follow the normal frame format so the checksum is wrong
+    if (arraysAreEqual(frame.slice(0, 2), [0xdf, 0xed])) {
+      const tlv = parseTLV(frame.slice(9));
+
+      const payload = tlv
+        .find((t) => arraysAreEqual(t.tag, [0x9f, 0x27]))
+        ?.value.map((b) => String.fromCharCode(b))
+        .join("");
+
+      if (!payload) {
+        console.log("No payload found");
+        return;
+      }
+
+      onScanHandler(payload);
+    }
+
+    // Here it's not Apple Wallet, it's just corrupted or something so we'll ignore it
     return;
   }
 
-  // console.log(frame.map((n) => n.toString(16).padStart(2, "0").toUpperCase()).join("  "));
-
   const responseFrame = new ResponseFrame(frame);
 
-  console.log(
-    responseFrame.commandByte.toString(16).padStart(2, "0").toUpperCase()
-  );
-  console.log(responseFrame.statusCodeMessage);
-  console.log(
-    responseFrame.data.map((n) => n.toString(16).padStart(2, "0").toUpperCase())
-  );
+  // Normal card scan
+  if (
+    responseFrame.commandByte === 0x02 &&
+    responseFrame.statusCodeByte === 0x00
+  ) {
+    // I haven't fully figured out what's up with the first 7 bytes but the rest is TLV
+    const tlv = parseTLV(responseFrame.data.slice(7));
 
-  onFrameHandler(responseFrame);
+    // I haven't fully deciphered what most of the stuff in the TLV is but I know this is consistently the UID sooo
+    const uid = tlv
+      .find((t) => arraysAreEqual(t.tag, [0xdf, 0xed, 0x44]))
+      ?.value.map((b) => b.toString(16).padStart(2, "0").toUpperCase())
+      .join(":");
 
-  sendCommand(reader, 0x01, 0x02, [0x01]);
+    if (!uid) {
+      console.log("No UID found");
+      return;
+    }
+
+    onScanHandler(uid);
+  }
 }
 
 function msb(hex: number) {

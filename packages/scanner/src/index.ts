@@ -10,14 +10,6 @@ const app = new Hono();
 
 let ws: WSContext | undefined;
 
-try {
-  const reader = pip.connect((frame) => {
-    console.log(frame.commandByte);
-  });
-} catch (error) {
-  console.log(error);
-}
-
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
 
 const wsRoute = app.get(
@@ -32,6 +24,19 @@ const wsRoute = app.get(
 );
 
 export type ScannerApp = typeof wsRoute;
+
+try {
+  pip.connect((scanPayload) => {
+    ws?.send(
+      JSON.stringify({
+        event: "scan",
+        payload: scanPayload,
+      })
+    );
+  });
+} catch (error) {
+  console.log(error);
+}
 
 if (process.env.NODE_ENV === "development") {
   app.post(

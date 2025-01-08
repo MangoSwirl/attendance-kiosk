@@ -21,6 +21,30 @@ function RightTextWrapper(props: { children: React.ReactNode }) {
   )
 }
 
+function TimerBar() {
+  const setPayload = useCardPayload((state) => state.setCardPayload);
+
+  return (
+    <motion.div
+      className="absolute bottom-0 left-0 right-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        delay: 2,
+        duration: 1,
+      }}
+    >
+      <motion.div
+        initial={{ width: "100%" }}
+        animate={{ width: "0%" }}
+        transition={{ duration: 10, ease: "linear" }}
+        className="bg-primary h-1"
+        onAnimationComplete={() => setPayload(null)}
+      />
+    </motion.div>
+  )
+}
+
 function WelcomeText() {
   return (
     <motion.div
@@ -215,6 +239,7 @@ function HomeComponent() {
           {isError && <GenericErrorText />}
         </div>
       </div>
+      {(user || userIsUnknown || isError) && <TimerBar key={`bar-payload-${cardPayload}`} />}
     </div>
   );
 }

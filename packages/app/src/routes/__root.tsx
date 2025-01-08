@@ -1,15 +1,18 @@
 import { scannerClient } from "@/lib/scannerClient";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { UserContext } from "../lib/UserContext";
+import { useEffect } from "react";
 import useReaderConnected from "@/lib/readerConnected";
+import useCardPayload from "@/lib/useCardPayload";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
+const queryClient = new QueryClient();
+
 function RootComponent() {
-  const [cardPayload, setCardPayload] = useState<string | null>(null);
+  const setCardPayload = useCardPayload((state) => state.setCardPayload);
   const setReaderConnected = useReaderConnected((state) => state.setReaderConnected);
 
   useEffect(() => {
@@ -29,16 +32,11 @@ function RootComponent() {
     return () => {
       socket.close();
     };
-  }, [setReaderConnected]);
+  }, [setReaderConnected, setCardPayload]);
 
   return (
-    <UserContext.Provider
-      value={{
-        cardPayload,
-        user: null,
-      }}
-    >
+    <QueryClientProvider client={queryClient}>
       <Outlet />
-    </UserContext.Provider>
+    </QueryClientProvider>
   );
 }

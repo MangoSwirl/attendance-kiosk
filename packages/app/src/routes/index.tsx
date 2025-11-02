@@ -5,20 +5,24 @@ import useCardPayload from "@/lib/useCardPayload";
 import useUser from "@/lib/useUser";
 import { cn } from "@/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckIcon, CircleHelpIcon, LoaderCircle, TriangleAlertIcon } from "lucide-react";
+import {
+  CheckIcon,
+  CircleHelpIcon,
+  LoaderCircle,
+  TriangleAlertIcon,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
-
 function RightTextWrapper(props: { children: React.ReactNode }) {
   return (
     <div className="absolute inset-x-0-0 translate-y-[-50%] space-y-4">
       {props.children}
     </div>
-  )
+  );
 }
 
 function TimerBar() {
@@ -42,7 +46,7 @@ function TimerBar() {
         onAnimationComplete={() => setPayload(null)}
       />
     </motion.div>
-  )
+  );
 }
 
 function WelcomeText() {
@@ -57,10 +61,17 @@ function WelcomeText() {
             <TextEffect preset="fade-in-blur">Welcome</TextEffect>
           </p>
           <h1 className="font-medium text-4xl">
-            <TextEffect per="word" preset="fade-in-blur" delay={0.2} segmentTransition={{
-              ease: [0.25, 0.1, 0.25, 1],
-              duration: 0.6
-            }}>Tap your badge to check in.</TextEffect>
+            <TextEffect
+              per="word"
+              preset="fade-in-blur"
+              delay={0.2}
+              segmentTransition={{
+                ease: [0.25, 0.1, 0.25, 1],
+                duration: 0.6,
+              }}
+            >
+              Tap your badge to check in.
+            </TextEffect>
           </h1>
         </div>
         <motion.div
@@ -82,13 +93,23 @@ function AttendanceRecordedText(props: { name: string }) {
     <RightTextWrapper>
       <div className="space-y-2">
         <p className="text-xl">
-          <TextEffect per="word" preset="fade-in-blur">{`Hi, ${props.name}`}</TextEffect>
+          <TextEffect
+            per="word"
+            preset="fade-in-blur"
+          >{`Hi, ${props.name}`}</TextEffect>
         </p>
         <h1 className="font-medium text-4xl">
-          <TextEffect per="word" preset="fade-in-blur" delay={0.2} segmentTransition={{
-            ease: [0.25, 0.1, 0.25, 1],
-            duration: 0.6
-          }}>Your attendance has been recorded.</TextEffect>
+          <TextEffect
+            per="word"
+            preset="fade-in-blur"
+            delay={0.2}
+            segmentTransition={{
+              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.6,
+            }}
+          >
+            Your attendance has been recorded.
+          </TextEffect>
         </h1>
       </div>
       <motion.div
@@ -96,7 +117,9 @@ function AttendanceRecordedText(props: { name: string }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.5 }}
       >
-        <Button variant="secondary" onClick={() => setCardPayload(null)}>I'm done</Button>
+        <Button variant="secondary" onClick={() => setCardPayload(null)}>
+          I'm done
+        </Button>
       </motion.div>
     </RightTextWrapper>
   );
@@ -107,10 +130,17 @@ function LoadingText() {
     <RightTextWrapper>
       <div className="space-y-2">
         <h1 className="font-medium text-4xl">
-          <TextEffect per="word" preset="fade-in-blur" delay={1.5} segmentTransition={{
-            ease: [0.25, 0.1, 0.25, 1],
-            duration: 0.6
-          }}>Loading your profile...</TextEffect>
+          <TextEffect
+            per="word"
+            preset="fade-in-blur"
+            delay={1.5}
+            segmentTransition={{
+              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.6,
+            }}
+          >
+            Loading your profile...
+          </TextEffect>
         </h1>
       </div>
     </RightTextWrapper>
@@ -133,7 +163,9 @@ function UnknownUserText() {
     <RightTextWrapper>
       <div className="space-y-2">
         <h1 className="font-medium text-4xl max-w-[300px]">
-          <TextEffect preset="fade-in-blur" delay={0.4}>Badge not recognized.</TextEffect>
+          <TextEffect preset="fade-in-blur" delay={0.4}>
+            Badge not recognized.
+          </TextEffect>
         </h1>
       </div>
       <motion.div
@@ -141,7 +173,9 @@ function UnknownUserText() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.5 }}
       >
-        <Button variant="secondary" onClick={() => setCardPayload(null)}>Go back</Button>
+        <Button variant="secondary" onClick={() => setCardPayload(null)}>
+          Go back
+        </Button>
       </motion.div>
     </RightTextWrapper>
   );
@@ -154,7 +188,9 @@ function GenericErrorText() {
     <RightTextWrapper>
       <div className="space-y-2">
         <h1 className="font-medium text-4xl max-w-[300px]">
-          <TextEffect preset="fade-in-blur" delay={0.4}>An error occurred.</TextEffect>
+          <TextEffect preset="fade-in-blur" delay={0.4}>
+            An error occurred.
+          </TextEffect>
         </h1>
       </div>
       <motion.div
@@ -162,13 +198,15 @@ function GenericErrorText() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.5 }}
       >
-        <Button variant="secondary" onClick={() => setCardPayload(null)}>Go back</Button>
+        <Button variant="secondary" onClick={() => setCardPayload(null)}>
+          Go back
+        </Button>
       </motion.div>
     </RightTextWrapper>
   );
 }
 
-function BadgeGraphic(props: { icon?: React.ReactNode, loading?: boolean }) {
+function BadgeGraphic(props: { icon?: React.ReactNode; loading?: boolean }) {
   const scaledDown = props.loading || props.icon;
 
   return (
@@ -186,19 +224,23 @@ function BadgeGraphic(props: { icon?: React.ReactNode, loading?: boolean }) {
       >
         <img
           src="/assets/badge-placeholder.png"
-          className={cn("absolute inset-0 transition-all duration-500", { "opacity-50 brightness-90 blur-md": props.icon })}
+          className={cn("absolute inset-0 transition-all duration-500", {
+            "opacity-50 brightness-90 blur-md": props.icon,
+          })}
         />
 
         <AnimatePresence>
-          {props.icon && <motion.div
-            className="absolute"
-            initial={{ opacity: 0, scale: 1.2 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {props.icon}
-          </motion.div>}
+          {props.icon && (
+            <motion.div
+              className="absolute"
+              initial={{ opacity: 0, scale: 1.2 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {props.icon}
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
     </div>
@@ -208,7 +250,9 @@ function BadgeGraphic(props: { icon?: React.ReactNode, loading?: boolean }) {
 function HomeComponent() {
   const { data: user, isLoading, isError } = useUser();
   const cardPayload = useCardPayload((state) => state.cardPayload);
-  const isReaderConnected = useReaderConnected((state) => state.readerConnected);
+  const isReaderConnected = useReaderConnected(
+    (state) => state.readerConnected
+  );
   const userIsUnknown = cardPayload && !isLoading && !user && !isError;
 
   if (!isReaderConnected) {
@@ -224,10 +268,7 @@ function HomeComponent() {
   return (
     <div className="bg-background w-screen h-screen flex justify-center items-center">
       <div className="flex gap-11 items-center">
-        <BadgeGraphic
-          loading={isLoading}
-          icon={icon}
-        />
+        <BadgeGraphic loading={isLoading} icon={icon} />
 
         <div className="w-[310px] relative">
           <AnimatePresence>
@@ -239,7 +280,9 @@ function HomeComponent() {
           {isError && <GenericErrorText />}
         </div>
       </div>
-      {(user || userIsUnknown || isError) && <TimerBar key={`bar-payload-${cardPayload}`} />}
+      {(user || userIsUnknown || isError) && (
+        <TimerBar key={`bar-payload-${cardPayload}`} />
+      )}
     </div>
   );
 }

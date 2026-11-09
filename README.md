@@ -3,7 +3,7 @@
 A badge-in kiosk built for FRC Team 8033. Students tap an ID card or an Apple Wallet NFC pass, and the kiosk logs their attendance on the team's server. It's built to handle 50+ students arriving within about 30 minutes, so you can scan at any time without touching the screen.
 
 <p align="center">
-  <img src="docs/mounted-device.webp" alt="The kiosk mounted on a wall" width="600">
+  <img src="docs/checkin.webp" alt="Tapping a badge on the wall-mounted kiosk: loading, then &quot;Your attendance has been recorded&quot;" width="450">
 </p>
 
 [CAD in Onshape](https://cad.onshape.com/documents/2d68ed571bc2e991534aa17d/w/a59ec1f5fa5c7dbcaf3419e4/e/03d1466513722d9342d5de94)
